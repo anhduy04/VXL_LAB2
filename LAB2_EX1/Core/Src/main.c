@@ -57,6 +57,24 @@ static void MX_TIM2_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+int timer0_counter = 0;
+int timer0_flag = 0;
+int TIMER_CYCLE = 10;
+
+void setTimer0(int duration) {
+	timer0_counter = duration / TIMER_CYCLE;
+	timer0_flag = 0;
+}
+
+void timer_run() {
+	if (timer0_counter > 0) {
+		timer0_counter--;
+		if (timer0_counter <= 0) {
+			timer0_flag = 1;
+		}
+	}
+}
+
 void display7SEG(int num) {
 	switch (num) {
 	case 0:
@@ -221,20 +239,23 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		second++;
-		if (second >= 60) {
-			second = 0;
-			minute++;
+		if (timer0_flag == 1) {
+			second++;
+			if (second >= 60) {
+				second = 0;
+				minute++;
+			}
+			if (minute >= 60) {
+				minute = 0;
+				hour++;
+			}
+			if (hour >= 24) {
+				hour = 0;
+			}
+			updateClockBuffer();
+			setTimer0(1000);
 		}
-		if (minute >= 60) {
-			minute = 0;
-			hour++;
-		}
-		if (hour >= 24) {
-			hour = 0;
-		}
-		updateClockBuffer();
-		HAL_Delay(1000);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
