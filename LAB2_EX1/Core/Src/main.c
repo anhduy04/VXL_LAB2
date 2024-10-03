@@ -57,20 +57,36 @@ static void MX_TIM2_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-int timer_counter = 0;
-int timer_flag = 0;
+int timer_counter0 = 0;
+int timer_flag0 = 0;
+int timer_counter1 = 0;
+int timer_flag1 = 0;
 int TIMER_CYCLE = 10;
 
-void setTimer(int duration) {
-	timer_counter = duration / TIMER_CYCLE;
-	timer_flag = 0;
+void setTimer0(int duration) {
+	timer_counter0 = duration / TIMER_CYCLE;
+	timer_flag0 = 0;
 }
 
-void timer_run() {
-	if (timer_counter > 0) {
-		timer_counter--;
-		if (timer_counter <= 0) {
-			timer_flag = 1;
+void timer_run0() {
+	if (timer_counter0 > 0) {
+		timer_counter0--;
+		if (timer_counter0 <= 0) {
+			timer_flag0 = 1;
+		}
+	}
+}
+
+void setTimer1(int duration) {
+	timer_counter1 = duration / TIMER_CYCLE;
+	timer_flag1 = 0;
+}
+
+void timer_run1() {
+	if (timer_counter1 > 0) {
+		timer_counter1--;
+		if (timer_counter1 <= 0) {
+			timer_flag1 = 1;
 		}
 	}
 }
@@ -237,11 +253,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	setTimer(1000);
+	setTimer0(1000);
+	setTimer1(250);
 	int num = 0;
   while (1)
   {
-		if (timer_flag == 1) {
+		if (timer_flag0 == 1) {
 			second++;
 			if (second >= 60) {
 				second = 0;
@@ -256,6 +273,13 @@ int main(void)
 			}
 			updateClockBuffer();
 
+			HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+			HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+
+			setTimer0(1000);
+		}
+
+		if (timer_flag1 == 1) {
 			switch (num) {
 			case 0:
 				HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, RESET);
@@ -291,10 +315,7 @@ int main(void)
 				break;
 			}
 
-			HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-			HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
-
-			setTimer(1000);
+			setTimer1(250);
 		}
 
     /* USER CODE END WHILE */
@@ -428,7 +449,8 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	timer_run();
+	timer_run0();
+	timer_run1();
 }
 
 /* USER CODE END 4 */
